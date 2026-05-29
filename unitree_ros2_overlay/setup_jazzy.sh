@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "Setup unitree ros2 jazzy environment"
+source /opt/ros/jazzy/setup.bash
+source $HOME/unitree_ros2-master/unitree_ros2-master/cyclonedds_ws/install/setup.bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="end0" priority="default" multicast="default" /></Interfaces></General></Domain></CycloneDDS>'
