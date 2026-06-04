@@ -1,0 +1,31 @@
+--- dist/src/messaging/process-message.js
++++ dist/src/messaging/process-message.js
+@@ -33,6 +33,19 @@
+     }
+     return "";
+ }
++function shouldCheckDirectCommand(textBody) {
++    const trimmed = textBody.trim();
++    if (trimmed.startsWith("/")) {
++        return true;
++    }
++    const compact = trimmed.toLowerCase().replace(/\s+/g, "");
++    return /\bgo\s*2\b/i.test(trimmed) ||
++        compact.includes("go2") ||
++        compact.includes("unitree") ||
++        compact.includes("宇树") ||
++        compact.includes("机器狗") ||
++        compact.includes("机器犬");
++}
+ /**
+  * Process a single inbound message: route → download media → dispatch reply.
+  * Extracted from the monitor loop to keep monitoring and message handling separate.
+@@ -48,7 +61,7 @@
+     const debugTrace = [];
+     const debugTs = { received: receivedAt };
+     const textBody = extractTextBody(full.item_list);
+-    if (textBody.trim().startsWith("/")) {
++    if (shouldCheckDirectCommand(textBody)) {
+         const slashResult = await handleSlashCommand(textBody, {
+             to: full.from_user_id ?? "",
+             contextToken: full.context_token,

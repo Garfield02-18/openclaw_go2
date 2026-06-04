@@ -78,13 +78,15 @@ OpenClaw
 
 作用：
 
-- 给微信插件增加 `/go2 ...` 确定性命令入口
-- 避免让本地模型自由理解“让 go2 起立”这类文本
+- 给微信插件增加 `/go2 ...` 确定性命令入口。
+- 增加面向 Go2 的确定性自然语言映射，例如“让 go2 站起来”“让机器狗停止”。
+- 在微信入口层限制触发条件，只有 `/` 命令或明确提到 `go2`、`unitree`、`宇树`、`机器狗`、`机器犬` 的消息才进入命令识别，避免影响“你好”等普通聊天。
 
 当前目录包含：
 
-- `slash-commands.js`：修改后的版本
-- `slash-commands.js.bak`：原始备份版本
+- `slash-commands.js`：修改后的命令处理参考实现，包含 `/go2 ...` 和 Go2 自然语言动作映射。
+- `process-message.js.patch`：微信入口层补丁，用于把命令预检查限制到斜杠命令和明确 Go2 消息。
+- `slash-commands.js.bak`：原始备份版本。
 
 ## 3. 复现前提
 
@@ -269,22 +271,22 @@ python genie/python/GenieAPIService.py --modelname "Phi-3.5-mini" --loadmodel --
 
 但请注意：
 
-- 本地 LLM 路径是实验性的
-- 与 ROS bridge 打通无强依赖
-- 如果你只想稳定微信控狗，优先使用确定性微信命令 `/go2 ...`，不要依赖自然语言理解
+- 本地 LLM 路径是实验性的。
+- 与 ROS bridge 打通无强依赖。
+- 稳定控狗优先使用确定性微信命令 `/go2 ...`。
+- 如果要使用自然语言，建议只支持明确提到 Go2 的确定性规则，不要让普通聊天进入机器人命令识别。
 
 ## 10. 微信侧控制 Go2
 
 ### 10.1 关键原则
 
-**不要依赖自然语言。**
+微信侧控制 Go2 应分成三条路径：
 
-比如：
+- 普通聊天，例如 `你好`，直接进入 OpenClaw AI 对话流程。
+- 斜杠命令，例如 `/go2 stand-up`，直接调用 Go2 bridge。
+- 明确提到 Go2 的自然语言，例如 `让go2站起来`，通过确定性规则映射为 Go2 bridge 命令。
 
-- `让go2起立`
-- `检查go2是否在线`
-
-这类文本会进入 LLM 路由，模型可能解释而不是执行。
+不要让所有微信文本都先进入机器人命令识别，否则会影响普通聊天质量。实际调试中，入口层收窄到只处理 `/` 命令或明确包含 `go2`、`unitree`、`宇树`、`机器狗`、`机器犬` 后，`你好` 这类普通对话可以恢复正常。
 
 ### 10.2 推荐命令协议
 
@@ -309,7 +311,46 @@ wechat_go2.sh
 -> Go2
 ```
 
-### 10.3 微信命令返回特点
+### 10.3 支持的自然语言示例
+
+以下文本会被确定性规则识别，不依赖 LLM 自由理解：
+
+```text
+让go2站起来
+让go2起立
+让机器狗停止
+检查go2是否在线
+让go2前进
+让go2后退
+让go2左转
+让go2右转
+```
+
+默认移动类命令会带短时长和自动 stop，例如前进会映射为：
+
+```text
+/go2 move --vx 0.2 --vy 0.0 --vyaw 0.0 --duration 1.0
+```
+
+### 10.4 应用微信插件补丁
+
+示例操作：
+
+```bash
+PLUGIN=/home/radxa/.openclaw/npm/node_modules/@tencent-weixin/openclaw-weixin
+cp wechat_go2_patch/slash-commands.js "$PLUGIN/dist/src/messaging/slash-commands.js"
+cd "$PLUGIN"
+patch -p0 < /home/radxa/openclaw_go2/wechat_go2_patch/process-message.js.patch
+systemctl --user restart openclaw-gateway.service
+```
+
+如果已经手工改过 `process-message.js`，需要确认入口判断是：
+
+```js
+if (shouldCheckDirectCommand(textBody)) {
+```
+
+### 10.5 微信命令返回特点
 
 - `/go2 status` 应返回 Go2 当前状态 JSON
 - `/go2 stand-up` 应返回 `success: true`
