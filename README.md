@@ -1,25 +1,25 @@
 # openclaw_go2
 
-A reproducible experiment and code collection for **Radxa Airbox + Unitree Go2 + OpenClaw + Weixin**.
+A reproducible experiment and code collection for **Qualcomm-based Radxa Airbox + Unitree Go2 + OpenClaw + Weixin**.
 
-Before starting, please make sure you have read the relevant documentation for the Radxa Airbox Q900 https://docs.radxa.com/fogwise/airbox-q900/system-use/uart-login
+Before starting, please make sure you have read the relevant documentation for the Qualcomm-based Radxa Airbox Q900: https://docs.radxa.com/fogwise/airbox-q900/system-use/uart-login
 
-This repository is centered on one specific deployment target: **running a local robot control stack on a Radxa Airbox and exposing that control path through OpenClaw and Weixin.**
+This repository is centered on one specific deployment target: **running a local robot control stack on a Qualcomm-based Radxa Airbox and exposing that control path through OpenClaw and Weixin.**
 
 It is not intended to provide a complete ready-to-flash system image. Instead, it preserves and documents the core pieces required to reproduce the setup:
 
 - Core implementation for `OpenClaw -> ROS2 -> Go2`
 - OpenClaw workspace skill
 - Standalone `Go2 ROS2 bridge` workspace
-- Local adaptation script for `unitree_ros2-master` on Airbox / ROS2 Jazzy / `end0`
+- Local adaptation script for `unitree_ros2-master` on the Qualcomm-based Radxa Airbox / ROS2 Jazzy / `end0`
 - Local patch reference for Weixin `/go2 ...` commands
-- Deployment notes specific to **Radxa Airbox**
+- Deployment notes specific to the **Qualcomm-based Radxa Airbox**
 
-## 1. Why Radxa Airbox
+## 1. Why the Qualcomm-based Radxa Airbox
 
-This project is built specifically around **Radxa Airbox**, rather than a generic PC or a cloud host.
+This project is built specifically around the **Qualcomm-based Radxa Airbox**, rather than a generic PC or a cloud host.
 
-In this project, Radxa Airbox is valuable because it can play several roles at once:
+In this project, the Qualcomm-based Radxa Airbox is valuable because it can play several roles at once:
 
 - a local Linux host for ROS2 and OpenClaw
 - an edge controller deployed close to the robot
@@ -27,39 +27,39 @@ In this project, Radxa Airbox is valuable because it can play several roles at o
 - an Ethernet access point for direct communication with Unitree Go2
 - an always-on gateway for Weixin and command integration
 
-As a result, the Airbox can serve as a compact edge-computing node that keeps the command pipeline local:
+As a result, the Qualcomm-based Radxa Airbox can serve as a compact edge-computing node that keeps the command pipeline local:
 
 ```text
 Weixin / OpenClaw
--> Airbox
+-> Qualcomm-based Radxa Airbox
 -> ROS2 bridge
 -> Unitree Go2
 ```
 
 That is the main reason this repository exists.
 
-## 2. Airbox-Oriented Project Goal
+## 2. Project Goal for the Qualcomm-based Radxa Airbox
 
 The goal of this repository is not simply “control Go2.” More specifically, it is to:
 
-- make Go2 controllable from a **Radxa Airbox**
-- preserve the glue code actually needed on Airbox
-- document Airbox-specific environment setup and debugging issues
+- make Go2 controllable from a **Qualcomm-based Radxa Airbox**
+- preserve the glue code actually needed on the Qualcomm-based Radxa Airbox
+- document Qualcomm-based Radxa Airbox-specific environment setup and debugging issues
 - provide a directory structure that can be uploaded, shared, and reproduced later
 
 For that reason, this README intentionally keeps details that might be omitted in a generic robotics repository, such as:
 
-- the Airbox network interface naming (`end0`)
+- the Qualcomm-based Radxa Airbox network interface naming (`end0`)
 - local ROS2 Jazzy adaptation
-- OpenClaw local gateway usage on Airbox
-- optional QAIRT / Genie local model paths on Airbox
-- plugin patching and shell wrapper behavior on Airbox
+- OpenClaw local gateway usage on the Qualcomm-based Radxa Airbox
+- optional QAIRT / Genie local model paths on the Qualcomm-based Radxa Airbox
+- plugin patching and shell wrapper behavior on the Qualcomm-based Radxa Airbox
 
 ## 3. Verified Capabilities
 
-The following capabilities have been verified on the Airbox:
+The following capabilities have been verified on the Qualcomm-based Radxa Airbox:
 
-- The Airbox can communicate with Go2 over Ethernet.
+- The Qualcomm-based Radxa Airbox can communicate with Go2 over Ethernet.
 - `Unitree SDK2` can directly read Go2 state and send basic high-level actions.
 - `unitree_ros2-master` on ROS2 Jazzy can expose Go2 state topics.
 - The standalone ROS2 workspace `go2_bridge_ros2` can provide the `/go2/command` service.
@@ -67,11 +67,11 @@ The following capabilities have been verified on the Airbox:
 - The Weixin plugin can connect to OpenClaw.
 - The Weixin side can bypass the LLM and call the ROS bridge through deterministic `/go2 ...` commands.
 
-## 4. Radxa Airbox Environment Notes
+## 4. Qualcomm-based Radxa Airbox Environment Notes
 
 ### 4.1 Device Role
 
-In this project, the Airbox acts as the:
+In this project, the Qualcomm-based Radxa Airbox acts as the:
 
 - ROS2 host
 - OpenClaw gateway host
@@ -81,10 +81,10 @@ In this project, the Airbox acts as the:
 
 ### 4.2 Default Architecture Assumption
 
-This repository assumes a directory layout on the Airbox roughly like this:
+This repository assumes a directory layout on the Qualcomm-based Radxa Airbox roughly like this:
 
 ```text
-Airbox
+Qualcomm-based Radxa Airbox
 ├── OpenClaw runtime
 ├── OpenClaw Weixin plugin
 ├── unitree_ros2-master
@@ -93,16 +93,16 @@ Airbox
 └── exported openclaw_go2 reproducible directory
 ```
 
-### 4.3 Why This README Emphasizes Airbox
+### 4.3 Why This README Emphasizes the Qualcomm-based Radxa Airbox
 
-During debugging, many failures were not generic Go2 problems. They were **Airbox deployment problems**, for example:
+During debugging, many failures were not generic Go2 problems. They were **Qualcomm-based Radxa Airbox deployment problems**, for example:
 
-- the network interface name used by CycloneDDS did not match the actual Airbox interface
-- ROS2 setup scripts conflicted with shell strict mode inside Airbox wrappers
-- the OpenClaw plugin had to invoke scripts from the Airbox local filesystem
-- local model stability depended on the exact QAIRT library layout on the Airbox
+- the network interface name used by CycloneDDS did not match the actual Qualcomm-based Radxa Airbox interface
+- ROS2 setup scripts conflicted with shell strict mode inside Qualcomm-based Radxa Airbox wrappers
+- the OpenClaw plugin had to invoke scripts from the Qualcomm-based Radxa Airbox local filesystem
+- local model stability depended on the exact QAIRT library layout on the Qualcomm-based Radxa Airbox
 
-Because of that, this README treats the Airbox as part of the system rather than just “the machine where the code happened to run.”
+Because of that, this README treats the Qualcomm-based Radxa Airbox as part of the system rather than just “the machine where the code happened to run.”
 
 ## 5. Directory Overview
 
@@ -145,14 +145,14 @@ OpenClaw
 
 ### 5.3 `unitree_ros2_overlay/setup_jazzy.sh`
 
-This is a local adaptation script for the current Airbox environment. It is not the original upstream `unitree_ros2-master` script.
+This is a local adaptation script for the current Qualcomm-based Radxa Airbox environment. It is not the original upstream `unitree_ros2-master` script.
 
 It is responsible for:
 
 - sourcing ROS2 Jazzy
 - sourcing `unitree_ros2-master/cyclonedds_ws/install/setup.bash`
 - forcing `rmw_cyclonedds_cpp`
-- binding DDS communication to the Airbox-side network path used to connect to Go2
+- binding DDS communication to the Qualcomm-based Radxa Airbox side network path used to connect to Go2
 
 ### 5.4 `wechat_go2_patch`
 
@@ -175,14 +175,14 @@ Files included:
 
 ### 6.1 Hardware / System
 
-- Radxa Airbox, `aarch64`
+- Qualcomm-based Radxa Airbox, `aarch64`
 - Unitree Go2
-- Airbox directly connected to Go2 over Ethernet, or both devices placed on the same reachable subnet
-- this document assumes the Airbox Ethernet interface is `end0`
+- Qualcomm-based Radxa Airbox directly connected to Go2 over Ethernet, or both devices placed on the same reachable subnet
+- this document assumes the Qualcomm-based Radxa Airbox Ethernet interface is `end0`
 
 ### 6.2 Software Environment
 
-- Ubuntu / Linux environment on the Airbox
+- Ubuntu / Linux environment on the Qualcomm-based Radxa Airbox
 - ROS2 Jazzy
 - OpenClaw around version `2026.5.x`
 - installed `@tencent-weixin/openclaw-weixin`
@@ -193,7 +193,7 @@ Files included:
 Common configuration used during testing:
 
 - Go2: `192.168.123.161`
-- Airbox `end0`: `192.168.123.222/24`
+- Qualcomm-based Radxa Airbox `end0`: `192.168.123.222/24`
 
 Check with:
 
@@ -202,18 +202,18 @@ ip -4 addr show dev end0
 ping -c 4 192.168.123.161
 ```
 
-## 7. Airbox Deployment Checklist
+## 7. Qualcomm-based Radxa Airbox Deployment Checklist
 
-Before debugging the bridge itself, first verify the Airbox base environment:
+Before debugging the bridge itself, first verify the Qualcomm-based Radxa Airbox base environment:
 
 - `uname -m` returns `aarch64`
 - `ip -brief link` shows `end0`
 - `source /opt/ros/jazzy/setup.bash` works correctly
-- the OpenClaw gateway can start locally on the Airbox
-- the Airbox can reach Go2 over Ethernet
-- `unitree_ros2-master` example binaries can run on the Airbox
+- the OpenClaw gateway can start locally on the Qualcomm-based Radxa Airbox
+- the Qualcomm-based Radxa Airbox can reach Go2 over Ethernet
+- `unitree_ros2-master` example binaries can run on the Qualcomm-based Radxa Airbox
 
-If any of these fail, fix that first. Many later “bridge issues” are actually caused by an incomplete Airbox base environment.
+If any of these fail, fix that first. Many later “bridge issues” are actually caused by an incomplete Qualcomm-based Radxa Airbox base environment.
 
 ## 8. Install Dependencies
 
@@ -229,7 +229,7 @@ sudo apt install -y \
 
 ### 8.2 OpenClaw
 
-Make sure OpenClaw is installed on the Airbox:
+Make sure OpenClaw is installed on the Qualcomm-based Radxa Airbox:
 
 ```bash
 export PATH=/home/radxa/.npm-global/bin:$PATH
@@ -244,7 +244,7 @@ openclaw config set plugins.entries.openclaw-weixin.enabled true
 openclaw channels login --channel openclaw-weixin
 ```
 
-If QR login succeeds but Weixin-side behavior is still abnormal, first check whether the local OpenClaw gateway on the Airbox is healthy:
+If QR login succeeds but Weixin-side behavior is still abnormal, first check whether the local OpenClaw gateway on the Qualcomm-based Radxa Airbox is healthy:
 
 ```bash
 openclaw gateway restart
@@ -304,7 +304,7 @@ colcon build
 
 ## 11. Start the Standalone ROS Bridge
 
-Open a new terminal on the Airbox:
+Open a new terminal on the Qualcomm-based Radxa Airbox:
 
 ```bash
 export GO2_INTERFACE=end0
@@ -338,22 +338,22 @@ message: ok
 then the following path is working:
 
 ```text
-Airbox ROS2 bridge -> Go2
+Qualcomm-based Radxa Airbox ROS2 bridge -> Go2
 ```
 
 ## 13. Local Model (Optional)
 
 ### 13.1 Notes
 
-This project previously also tested using `GenieAPIService` on the Airbox as the local LLM backend for OpenClaw.
+This project previously also tested using `GenieAPIService` on the Qualcomm-based Radxa Airbox as the local LLM backend for OpenClaw.
 
-This path can start successfully in some environments, but its stability depends on the local `QAIRT/QNN` runtime environment on the Airbox. It is **not guaranteed to work out of the box**, and it is **not required** to reproduce the core project.
+This path can start successfully in some environments, but its stability depends on the local `QAIRT/QNN` runtime environment on the Qualcomm-based Radxa Airbox. It is **not guaranteed to work out of the box**, and it is **not required** to reproduce the core project.
 
 ### 13.2 Why It Is Optional
 
 For robot control, a deterministic `/go2 ...` command path is more important than a free-form local chat model.
 
-So as long as the Airbox can already run:
+So as long as the Qualcomm-based Radxa Airbox can already run:
 
 - the OpenClaw gateway
 - the Weixin plugin
@@ -364,9 +364,9 @@ then the project already has its core value, even without enabling the local mod
 
 ## 14. Recommended Startup Order
 
-If you want the most stable reproduction on Radxa Airbox, bring the system up in the following order:
+If you want the most stable reproduction on the Qualcomm-based Radxa Airbox, bring the system up in the following order:
 
-1. Airbox-to-Go2 network
+1. Qualcomm-based Radxa Airbox to Go2 network
 2. ROS2 Jazzy environment
 3. `unitree_ros2-master` example control
 4. standalone `go2_bridge_ros2`
